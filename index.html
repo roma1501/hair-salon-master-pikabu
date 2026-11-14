@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Мастер стрижки: парикмахерская</title>
+    <link rel="icon" type="image/webp" href="assets/ui/icon_cut.webp">
+    <style>
+        html, body {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background: #c9c4f5;
+            -webkit-touch-callout: none;
+            -webkit-user-select: none;
+            user-select: none;
+        }
+        input, textarea, [contenteditable] { -webkit-user-select: text; user-select: text; }
+        img { -webkit-user-drag: none; }
+        #world3d {
+            position: fixed;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            display: block;
+            outline: none;
+            touch-action: none;
+        }
+        /* Экран загрузки в стиле салона: зеркало с лампочками, щёлкающие ножницы, полоса «барбер-пол» */
+        @font-face { font-family: 'Nunito'; src: url('assets/fonts/nunito.ttf?v=1.0.4-c7cba917') format('truetype'); font-weight: 200 1000; font-display: swap; }
+        #loading-screen {
+            position: fixed;
+            inset: 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            gap: clamp(8px, 2.2vh, 18px);
+            padding: 34px 16px;
+            box-sizing: border-box;
+            overflow: hidden;
+            font-family: 'Nunito', system-ui, sans-serif;
+            background:
+                radial-gradient(ellipse at 50% 52%, rgba(255, 244, 224, 0.82) 0%, rgba(255, 244, 224, 0.55) 34%, rgba(201, 196, 245, 0.12) 68%, rgba(39, 49, 79, 0.18) 100%),
+                url('assets/ui/loading_bg.webp?v=1.0.4-c7cba917') center / cover no-repeat,
+                linear-gradient(160deg, #d9d4ff 0%, #c9c4f5 42%, #bfeee0 100%);
+            z-index: 1000;
+        }
+        @media (orientation: portrait) {
+            #loading-screen {
+                background:
+                    radial-gradient(ellipse at 50% 50%, rgba(255, 244, 224, 0.82) 0%, rgba(255, 244, 224, 0.55) 34%, rgba(201, 196, 245, 0.12) 70%, rgba(39, 49, 79, 0.18) 100%),
+                    url('assets/ui/loading_bg_tall.webp?v=1.0.4-c7cba917') center / cover no-repeat,
+                    linear-gradient(160deg, #d9d4ff 0%, #c9c4f5 42%, #bfeee0 100%);
+            }
+        }
+        /* полосатые ленты сверху и снизу бегут, как вращающийся барбер-пол */
+        #loading-screen::before, #loading-screen::after {
+            content: '';
+            position: absolute;
+            left: -100px; right: -100px;
+            height: clamp(14px, 3.4vh, 26px);
+            background: repeating-linear-gradient(-45deg, #ff6b6b 0 16px, #fff4e0 16px 32px, #23c4c9 32px 48px, #fff4e0 48px 64px);
+            border-top: 4px solid #27314f; border-bottom: 4px solid #27314f;
+            animation: ld-stripes 1.6s linear infinite;
+        }
+        #loading-screen::before { top: 0; }
+        #loading-screen::after { bottom: 0; animation-direction: reverse; }
+        @keyframes ld-stripes { to { transform: translateX(90.5px); } }
+        .ld-badge {
+            position: relative;
+            width: clamp(96px, 24vh, 190px); height: clamp(96px, 24vh, 190px);
+            flex: 0 0 auto;
+            margin-bottom: clamp(10px, 2.4vh, 20px);
+            border-radius: 50%;
+            background: radial-gradient(circle at 34% 28%, #ffffff 0 18%, #e9f8ff 19% 60%, #cfeef7 61% 100%);
+            border: clamp(5px, 1.1vh, 9px) solid #27314f;
+            box-shadow: 0 0 0 clamp(8px, 1.9vh, 15px) #fff4e0, 0 0 0 clamp(12px, 2.7vh, 21px) #27314f, 0 clamp(14px, 3vh, 26px) 0 rgba(39, 49, 79, 0.22);
+            animation: ld-bob 2.4s ease-in-out infinite;
+        }
+        /* лампочки по раме зеркала */
+        .ld-badge::after {
+            content: '';
+            position: absolute;
+            inset: clamp(-17px, -2.3vh, -11px);
+            border-radius: 50%;
+            border: clamp(5px, 1vh, 8px) dotted #ffd23f;
+            filter: drop-shadow(0 0 5px rgba(255, 210, 63, 0.9));
+            animation: ld-bulbs 9s linear infinite;
+        }
+        .ld-badge svg { position: absolute; inset: 9%; width: 82%; height: 82%; overflow: visible; }
+        .ld-blade-a, .ld-blade-b { transform-origin: 60px 60px; }
+        .ld-blade-a { animation: ld-snip-a 0.62s ease-in-out infinite alternate; }
+        .ld-blade-b { animation: ld-snip-b 0.62s ease-in-out infinite alternate; }
+        @keyframes ld-snip-a { from { transform: rotate(-17deg); } to { transform: rotate(1deg); } }
+        @keyframes ld-snip-b { from { transform: rotate(17deg); } to { transform: rotate(-1deg); } }
+        @keyframes ld-bob { 50% { transform: translateY(-6px) rotate(-2deg); } }
+        @keyframes ld-bulbs { to { transform: rotate(360deg); } }
+        #loading-title {
+            margin: clamp(6px, 1.6vh, 14px) 0 0;
+            font: 900 clamp(26px, 6.4vmin, 56px)/1.05 'Nunito', system-ui, sans-serif;
+            letter-spacing: 0.01em;
+            color: #ffd23f;
+            text-align: center;
+            max-width: 92vw;
+            -webkit-text-stroke: clamp(5px, 1.1vmin, 9px) #27314f;
+            paint-order: stroke fill;
+            text-shadow: 0 clamp(3px, 0.8vmin, 6px) 0 #27314f;
+        }
+        .loading-bar {
+            position: relative;
+            width: min(340px, 78vw);
+            height: clamp(18px, 3.6vh, 26px);
+            flex: 0 0 auto;
+            background: #fff4e0;
+            border: 4px solid #27314f;
+            border-radius: 999px;
+            overflow: hidden;
+            box-shadow: 0 5px 0 rgba(39, 49, 79, 0.25);
+        }
+        .loading-progress {
+            height: 100%;
+            width: 0%;
+            border-radius: 999px;
+            background: repeating-linear-gradient(-45deg, #ff6b6b 0 12px, #fff4e0 12px 24px, #23c4c9 24px 36px, #fff4e0 36px 48px);
+            background-size: 68px 100%;
+            box-shadow: inset 0 -5px 0 rgba(39, 49, 79, 0.16), 3px 0 0 #27314f;
+            animation: ld-pole 0.9s linear infinite;
+            transition: width 0.3s ease;
+        }
+        @keyframes ld-pole { to { background-position: 67.9px 0; } }
+        #loading-percent {
+            min-width: 64px; padding: 3px 14px;
+            font: 900 clamp(15px, 2.8vh, 20px)/1.2 'Nunito', system-ui, sans-serif;
+            color: #27314f; text-align: center;
+            background: #ffd23f; border: 3px solid #27314f; border-radius: 999px;
+            box-shadow: 0 4px 0 #27314f;
+        }
+        .loading-text {
+            font: 800 clamp(13px, 2.4vh, 17px) 'Nunito', system-ui, sans-serif;
+            color: #27314f;
+            text-align: center;
+            min-height: 1.2em;
+        }
+        #loading-retry {
+            padding: 12px 28px; border: 4px solid #27314f; border-radius: 999px;
+            background: #3ecf6a; color: #fff;
+            font: 900 17px 'Nunito', system-ui, sans-serif; text-shadow: 0 2px 0 #27314f;
+            box-shadow: 0 5px 0 #27314f; cursor: pointer;
+        }
+        /* низкий альбомный экран: значок меньше, всё помещается */
+        @media (max-height: 420px) {
+            #loading-screen { gap: 6px; padding: 26px 12px; }
+            .ld-badge { width: clamp(60px, 24vh, 104px); height: clamp(60px, 24vh, 104px); margin-bottom: 8px; }
+        }
+        @media (prefers-reduced-motion: reduce) {
+            #loading-screen::before, #loading-screen::after, .ld-badge, .ld-badge::after, .ld-blade-a, .ld-blade-b, .loading-progress { animation: none; }
+        }
+    </style>
+</head>
+<body>
+    <canvas id="world3d"></canvas>
+    <div id="loading-screen" role="status" aria-busy="true" aria-live="polite">
+        <div class="ld-badge" aria-hidden="true">
+            <svg viewBox="0 0 120 120">
+                <g class="ld-blade-a">
+                    <path d="M60 60 L112 34 Q118 40 110 47 Z" fill="#eaf3f8" stroke="#27314f" stroke-width="5" stroke-linejoin="round"/>
+                    <path d="M60 60 L36 74" stroke="#27314f" stroke-width="11" stroke-linecap="round"/>
+                    <circle cx="24" cy="82" r="14" fill="none" stroke="#27314f" stroke-width="13"/>
+                    <circle cx="24" cy="82" r="14" fill="none" stroke="#ff6b6b" stroke-width="6"/>
+                </g>
+                <g class="ld-blade-b">
+                    <path d="M60 60 L112 86 Q118 80 110 73 Z" fill="#d9e6ef" stroke="#27314f" stroke-width="5" stroke-linejoin="round"/>
+                    <path d="M60 60 L36 46" stroke="#27314f" stroke-width="11" stroke-linecap="round"/>
+                    <circle cx="24" cy="38" r="14" fill="none" stroke="#27314f" stroke-width="13"/>
+                    <circle cx="24" cy="38" r="14" fill="none" stroke="#23c4c9" stroke-width="6"/>
+                </g>
+                <circle cx="60" cy="60" r="6.5" fill="#ffd23f" stroke="#27314f" stroke-width="4"/>
+            </svg>
+        </div>
+        <h1 id="loading-title">Мастер стрижки: парикмахерская</h1>
+        <div id="loading-percent">0%</div>
+        <div class="loading-bar" id="loading-meter" role="progressbar" aria-label="Loading" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><div class="loading-progress"></div></div>
+        <div class="loading-text" data-t="loading">Загрузка…</div>
+        <button id="loading-retry" type="button" hidden></button>
+    </div>
+
+    <!-- Порядок значим: Constants.js первым (остальные читают его глобалы), main.js последним -->
+    <script src="https://games.pikabu.ru/sdk/sdk.js"></script>
+<script src="js/Constants.js?v=1.0.4-c7cba917"></script>
+    <!-- 1.40 ads-ui: поле игры на десктопе не шире 2:1 (Playgama); вторым — его resize идёт раньше обработчиков движка -->
+    <script src="js/ViewCap.js?v=1.0.4-c7cba917"></script>
+    <script src="libs/simplex-noise.js?v=1.0.4-c7cba917"></script>
+    <script src="libs/babylon.js?v=1.0.4-c7cba917"></script>
+    <script src="js/Maps.js?v=1.0.4-c7cba917"></script>
+    <script src="js/Maps2D.js?v=1.0.4-c7cba917"></script>
+    <script src="js/World2D.js?v=1.0.4-c7cba917"></script>
+    <script src="js/World3D.js?v=1.0.4-c7cba917"></script>
+    <script src="js/Terrain3D.js?v=1.0.4-c7cba917"></script>
+    <script src="js/CameraControl.js?v=1.0.4-c7cba917"></script>
+    <!-- 1.40: камера не заслоняется сценой (столкновение, полупрозрачные заслоны) -->
+    <script src="js/CameraSight.js?v=1.0.4-c7cba917"></script>
+    <script src="js/Model3D.js?v=1.0.4-c7cba917"></script>
+    <script src="js/ModelFBX.js?v=1.0.4-c7cba917"></script>
+    <script src="js/ModelOBJ.js?v=1.0.4-c7cba917"></script>
+    <script src="js/ModelGLTF.js?v=1.0.4-c7cba917"></script>
+    <script src="js/Location3D.js?v=1.0.4-c7cba917"></script>
+    <!-- world-a: Rig.js (риги и клипы), Nav.js (коллизии, высоты, пути) -->
+    <script src="js/Rig.js?v=1.0.4-c7cba917"></script>
+    <script src="js/Nav.js?v=1.0.4-c7cba917"></script>
+    <!-- 1.30 мир (world-b): уровни графики и время суток -->
+    <script src="js/Quality.js?v=1.0.4-c7cba917"></script>
+    <script src="js/Sky3D.js?v=1.0.4-c7cba917"></script>
+    <script src="js/Pause.js?v=1.0.4-c7cba917"></script>
+    <script src="js/Sound.js?v=1.0.4-c7cba917"></script>
+    <script src="js/Lang.js?v=1.0.4-c7cba917"></script>
+    <script src="js/Platform.js?v=1.0.4-c7cba917"></script>
+    <!-- Адаптеры площадок (Platform.register): Playgama; игра добавляет свои здесь же, после Platform.js -->
+    <script src="js/PlatformPlaygama.js?v=1.0.4-c7cba917"></script>
+    <!-- Адаптеры Telegram Mini App, CrazyGames, Android-обёртки и сборки test (detect() выбирает площадку) -->
+    <script src="js/PlatformTelegram.js?v=1.0.4-c7cba917"></script>
+    <script src="js/PlatformCrazy.js?v=1.0.4-c7cba917"></script>
+    <script src="js/PlatformPikabu.js?v=1.0.4-c7cba917"></script>
+    <script src="js/PlatformAndroid.js?v=1.0.4-c7cba917"></script>
+    <script src="js/PlatformTest.js?v=1.0.4-c7cba917"></script>
+    <script src="js/LoadingScreen.js?v=1.0.4-c7cba917"></script>
+    <script src="js/ParticleFX.js?v=1.0.4-c7cba917"></script>
+    <script src="js/Telemetry.js?v=1.0.4-c7cba917"></script>
+    <!-- 1.30 systems-b: магазин косметики, Daily Gift, колесо фортуны (логика без UI, опт-ин: Shop/DailyGift/Wheel.init в Game.js) -->
+    <script src="js/Shop.js?v=1.0.4-c7cba917"></script>
+    <script src="js/DailyGift.js?v=1.0.4-c7cba917"></script>
+    <script src="js/Wheel.js?v=1.0.4-c7cba917"></script>
+    <!-- 1.30 systems-a: ввод, раскладка HUD, обучение. Opt-in: игра сама зовёт Input.init / HudLayout.init / Tutorial.init -->
+    <script src="js/HudLayout.js?v=1.0.4-c7cba917"></script>
+    <script src="js/Input.js?v=1.0.4-c7cba917"></script>
+    <script src="js/Tutorial.js?v=1.0.4-c7cba917"></script>
+    <script src="js/LiveWater3D.js?v=1.0.4-c7cba917"></script>
+    <!-- 1.40 motion: физический блочный персонаж (opt-in). Порядок значим: MotionMath (GM) -> Humanoid -> MotionMatch -> CharacterPhysics -> Ragdoll -> Character -->
+    <script src="js/MotionMath.js?v=1.0.4-c7cba917"></script>
+    <script src="js/Humanoid.js?v=1.0.4-c7cba917"></script>
+    <script src="js/MotionMatch.js?v=1.0.4-c7cba917"></script>
+    <script src="js/CharacterPhysics.js?v=1.0.4-c7cba917"></script>
+    <script src="js/Ragdoll.js?v=1.0.4-c7cba917"></script>
+    <script src="js/Character.js?v=1.0.4-c7cba917"></script>
+    <!-- 1.40 obby (ветка obby): трасса из деталей карты, тело героя, боты и их чат, вид. Опт-ин: игра сама зовёт ObbyCourse.build / ObbyBots.init -->
+    <script src="js/ObbyCourse.js?v=1.0.4-c7cba917"></script>
+    <script src="js/ObbyBody.js?v=1.0.4-c7cba917"></script>
+    <script src="js/ObbyChat.js?v=1.0.4-c7cba917"></script>
+    <script src="js/ObbyBots.js?v=1.0.4-c7cba917"></script>
+    <script src="js/ObbyCourseView.js?v=1.0.4-c7cba917"></script>
+    <script src="js/ObbyAvatar.js?v=1.0.4-c7cba917"></script>
+    <!-- Скрипты игры (js/Game.js и её модули) — здесь, до main.js -->
+    <script src="js/GameHair.js?v=1.0.4-c7cba917"></script>
+    <script src="js/GameChar.js?v=1.0.4-c7cba917"></script>
+    <script src="js/GameData.js?v=1.0.4-c7cba917"></script>
+    <script src="js/GameSalon.js?v=1.0.4-c7cba917"></script>
+    <script src="js/GameCut.js?v=1.0.4-c7cba917"></script>
+    <script src="js/GameFx.js?v=1.0.4-c7cba917"></script>
+    <script src="js/GameLang.js?v=1.0.4-c7cba917"></script>
+    <script src="js/GameUIStyle.js?v=1.0.4-c7cba917"></script>
+    <script src="js/GameUI.js?v=1.0.4-c7cba917"></script>
+    <script src="js/Game.js?v=1.0.4-c7cba917"></script>
+    <script src="js/PikabuShop.js?v=1.0.4-c7cba917"></script>
+    <script src="js/PikabuPacks.js?v=1.0.4-c7cba917"></script>
+    <script src="js/main.js?v=1.0.4-c7cba917"></script>
+    <script>
+        // Игровая область: долгий тап и ПКМ не открывают меню браузера, картинки не
+        // тянутся, текст не выделяется — кроме настоящих полей ввода.
+        (() => {
+            const isField = t => t && (/^(INPUT|TEXTAREA|SELECT)$/.test(t.tagName) || t.isContentEditable);
+            for (const type of ['contextmenu', 'dragstart', 'selectstart']) {
+                document.addEventListener(type, e => { if (!isField(e.target)) e.preventDefault(); });
+            }
+        })();
+    </script>
+</body>
+</html>

@@ -1,0 +1,111 @@
+// GameLang.js — тексты интерфейса игры (ru/en). Ключи ui.*; код — Lang.t('ui.…').
+Object.assign(LANG_STRINGS.ru, {
+    'ui.shop': 'Магазин',
+    'ui.gift': 'Подарок',
+    'ui.settings': 'Настройки',
+    'ui.close': 'Закрыть',
+    'ui.lvl': 'Ур. {n}',
+    'ui.cashDelta': '+${n}',
+    'ui.hintFallback': 'Действие',
+    'ui.cutDone': 'Готово',
+    'ui.rotLeft': 'Повернуть влево',
+    'ui.rotRight': 'Повернуть вправо',
+    'ui.target': 'Цель',
+    'ui.brushBanner': 'Смети волосы щёткой!',
+    'ui.clumps': 'Клочков: {n}',
+    'ui.lockedTool': 'Откроется на уровне {n}',
+    'ui.lockedLen': 'Пока закрыто',
+    'ui.result.s0': 'Так себе…',
+    'ui.result.s1': 'Неплохо!',
+    'ui.result.s2': 'Отлично!',
+    'ui.result.s3': 'Шедевр!',
+    'ui.result.pay': 'Оплата',
+    'ui.result.tip': 'Чаевые',
+    'ui.result.xp': 'Опыт',
+    'ui.result.perfect': 'Идеально!',
+    'ui.next': 'Дальше',
+    'ui.levelup.title': 'Новый уровень!',
+    'ui.levelup.unlocked': 'Открыто:',
+    'ui.levelup.ok': 'Класс!',
+    'ui.unlock.title': 'Новый инструмент!',
+    'ui.unlock.ok': 'Отлично!',
+    'ui.shop.title': 'Магазин',
+    'ui.shop.empty': 'Здесь пока пусто',
+    'ui.shop.adNone': 'Реклама недоступна',
+    'ui.shop.exclusive': 'Только в подарок',
+    'ui.gift.title': 'Подарок дня',
+    'ui.gift.got': 'Получено: {s}',
+    'ui.gift.fail': 'Не получилось. Попробуйте ещё раз.',
+    'ui.gift.nextShort': 'Приходите завтра!',
+    'ui.settings.title': 'Настройки',
+    'ui.sound': 'Звук',
+    'ui.howto': 'Как играть',
+    'ui.language': 'Русский язык',
+});
+Object.assign(LANG_STRINGS.en, {
+    'ui.shop': 'Shop',
+    'ui.gift': 'Gift',
+    'ui.settings': 'Settings',
+    'ui.close': 'Close',
+    'ui.lvl': 'Lv. {n}',
+    'ui.cashDelta': '+${n}',
+    'ui.hintFallback': 'Action',
+    'ui.cutDone': 'Done',
+    'ui.rotLeft': 'Turn left',
+    'ui.rotRight': 'Turn right',
+    'ui.target': 'Goal',
+    'ui.brushBanner': 'Sweep the hair with the brush!',
+    'ui.clumps': 'Clumps: {n}',
+    'ui.lockedTool': 'Unlocks at level {n}',
+    'ui.lockedLen': 'Locked for now',
+    'ui.result.s0': 'Not great…',
+    'ui.result.s1': 'Not bad!',
+    'ui.result.s2': 'Great job!',
+    'ui.result.s3': 'Masterpiece!',
+    'ui.result.pay': 'Payment',
+    'ui.result.tip': 'Tip',
+    'ui.result.xp': 'Experience',
+    'ui.result.perfect': 'Perfect!',
+    'ui.next': 'Next',
+    'ui.levelup.title': 'New level!',
+    'ui.levelup.unlocked': 'Unlocked:',
+    'ui.levelup.ok': 'Awesome!',
+    'ui.unlock.title': 'New tool!',
+    'ui.unlock.ok': 'Great!',
+    'ui.shop.title': 'Shop',
+    'ui.shop.empty': 'Nothing here yet',
+    'ui.shop.adNone': 'Ads unavailable',
+    'ui.shop.exclusive': 'Gift only',
+    'ui.gift.title': 'Daily gift',
+    'ui.gift.got': 'You got: {s}',
+    'ui.gift.fail': 'Something went wrong. Try again.',
+    'ui.gift.nextShort': 'Come back tomorrow!',
+    'ui.settings.title': 'Settings',
+    'ui.sound': 'Sound',
+    'ui.howto': 'How to play',
+    'ui.language': 'Russian language',
+});
+
+// Рекорды (лидерборд площадки): сумма звёзд за все стрижки.
+Object.assign(LANG_STRINGS.ru, {
+    'ui.records': 'Рекорды', 'ui.rec.title': 'Рекорды', 'ui.rec.loading': 'Загрузка…',
+    'ui.rec.empty': 'Пока нет лучших игроков', 'ui.rec.fail': 'Не удалось загрузить рекорды',
+    'ui.rec.anon': 'Игрок', 'ui.rec.you': 'вы', 'ui.rec.mine': 'Ваши звёзды: {n}',
+    'ui.rec.loginHint': 'Чтобы попасть в таблицу, нужен аккаунт.', 'ui.rec.login': 'Войдите в аккаунт',
+});
+Object.assign(LANG_STRINGS.en, {
+    'ui.records': 'Records', 'ui.rec.title': 'Records', 'ui.rec.loading': 'Loading…',
+    'ui.rec.empty': 'No top players yet', 'ui.rec.fail': 'Could not load the records',
+    'ui.rec.anon': 'Player', 'ui.rec.you': 'you', 'ui.rec.mine': 'Your stars: {n}',
+    'ui.rec.loginHint': 'Sign in to appear on the board.', 'ui.rec.login': 'Sign in',
+});
+
+// Ярость клиента.
+Object.assign(LANG_STRINGS.ru, { 'ui.rage': 'Ярость клиента', 'ui.calm': 'Успокоить за рекламу' });
+Object.assign(LANG_STRINGS.en, { 'ui.rage': 'Customer rage', 'ui.calm': 'Calm down: watch ad' });
+
+// Реклама за награду.
+Object.assign(LANG_STRINGS.ru, { 'ui.result.x2': 'x2 за рекламу', 'ui.adFail': 'Реклама сейчас недоступна' });
+Object.assign(LANG_STRINGS.en, { 'ui.result.x2': 'x2: watch ad', 'ui.adFail': 'The ad is not available right now' });
+Object.assign(LANG_STRINGS.ru, { 'ui.shop.adCash': 'за рекламу' });
+Object.assign(LANG_STRINGS.en, { 'ui.shop.adCash': 'for an ad' });
